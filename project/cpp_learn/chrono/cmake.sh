@@ -1,10 +1,10 @@
 #!/bin/bash
 
 build_dir=`pwd`
-PRO_NAME_=exception
+PRO_NAME_=chrono
 
 rm -rf build
-rm -rf ${PRO_NAME_}
+# rm -rf ${PRO_NAME_}
 
 mkdir build
 cd build

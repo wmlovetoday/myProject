@@ -1,7 +1,7 @@
 #!/bin/bash
 
 build_dir=`pwd`
-PRO_NAME_=exception
+PRO_NAME_=vector
 
 rm -rf build
 rm -rf ${PRO_NAME_}

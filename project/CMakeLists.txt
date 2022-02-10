@@ -42,7 +42,7 @@ set(opencv_lib_dir    /home/code/installation_package/ubuntu/install_opencv3/ope
 list(APPEND lib_files "")
 list(APPEND header_files ${PROJECT_SOURCE_DIR}/../include)
 
-if(USE_ZLOG)
+if(ENABLE_ZLOG)
   include_directories(${PROJECT_SOURCE_DIR}/../src/log)
   include_directories(${zlog_header_dir} ${fmt_header_dir})
   link_directories(${fmt_lib_dir} ${zlog_lib_dir})
@@ -51,7 +51,18 @@ if(USE_ZLOG)
   message(STATUS "=============== build zlog ==============")
 endif()
 
-if(USE_OPENCV)
+if(ENABLE_ZMQ_DDS)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/zmq)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/dds)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/dds/dds_zmq)
+  include_directories(${zmq_header_dir})
+  link_directories(${zmq_lib_dir})
+  list(APPEND lib_files "zmq " )
+  add_definitions(-DZMQ_DDS)
+  message(STATUS "=============== build zmq ==============")
+endif()
+
+if(ENABLE_OPENCV)
 include_directories(${opencv_header_dir})
 link_directories(${opencv_lib_dir})
 list(APPEND lib_files opencv_core opencv_highgui opencv_imgcodecs opencv_imgproc opencv_videoio opencv_photo)
@@ -61,14 +72,18 @@ endif()
 message(STATUS "***************** lib_files=" ${lib_files})
 message(STATUS "***************** header_files=" ${header_files})
 
-
 add_definitions(-DPRT_TEST)
-
+include_directories(${PRO_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/../include)
 
 # link_directories(${fmt_lib_dir} ${zlog_lib_dir})
 
 aux_source_directory( ${PRO_DIR} SourceList)
+if(ENABLE_ZMQ_DDS)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/zmq SourceList)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/dds SourceList)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/dds/dds_zmq SourceList)
+endif()  
 add_executable(${PROJECT_NAME} ${SourceList})
 
 target_link_libraries(${PROJECT_NAME} ${lib_files} pthread)
