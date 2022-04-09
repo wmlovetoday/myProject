@@ -41,10 +41,12 @@ int32_t main(int32_t argc, char** argv) {
   PTS_INFO("{} ipaddr:{} index:{} port:{}", STR_FLAG, argv[1], index, port);
 
   if (index == 1) {
-    dds::Dds com{dds::kCommsReq, std::string{argv[1]}, static_cast<uint16_t>(port)};
+    dds::Dds com{dds::kCommsReq, std::string{argv[1]},
+                 static_cast<uint16_t>(port)};
     std::vector<uint8_t> info{1, 2, 3, 4};
     std::vector<uint8_t> r_info(100, 0);
     while (true) {
+      info[0] = info[0] + 1;
       ret = com.Write(info.data(), info.size(), "");
       PTS_INFO("req send {}", ret);
       std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -57,7 +59,8 @@ int32_t main(int32_t argc, char** argv) {
   }
   if (index == 2) {
     PTS_INFO("rep test");
-    dds::Dds com{dds::kCommsRep, std::string{argv[1]}, static_cast<uint16_t>(port)};
+    dds::Dds com{dds::kCommsRep, std::string{argv[1]},
+                 static_cast<uint16_t>(port)};
     std::vector<uint8_t> info{5, 6, 7, 8, 9};
     std::vector<uint8_t> r_info(64, 0);
 
@@ -75,7 +78,8 @@ int32_t main(int32_t argc, char** argv) {
   }
   if (index == 3) {
     PTS_INFO("pub test");
-    dds::Dds com{dds::kCommsPub, std::string{argv[1]}, static_cast<uint16_t>(port)};
+    dds::Dds com{dds::kCommsPub, std::string{argv[1]},
+                 static_cast<uint16_t>(port)};
     std::string info{"world"};
     while (true) {
       ret = com.Write(info.data(), info.size(), TOPIC);
@@ -85,10 +89,12 @@ int32_t main(int32_t argc, char** argv) {
   }
   if (index == 4) {
     PTS_INFO("sub test");
-    dds::Dds com{dds::kCommsSub, std::string{argv[1]}, static_cast<uint16_t>(port)};
+    dds::Dds com{dds::kCommsSub, std::string{argv[1]},
+                 static_cast<uint16_t>(port)};
     std::string info(100, '\0');
     while (true) {
-      ret = com.Read(reinterpret_cast<void*>(const_cast<char*>(info.data())), info.size(), 10000, TOPIC);
+      ret = com.Read(reinterpret_cast<void*>(const_cast<char*>(info.data())),
+                     info.size(), 10000, TOPIC);
       PTS_INFO("sub read {}, {}", ret, info.data());
     }
   }

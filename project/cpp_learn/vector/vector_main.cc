@@ -11,6 +11,16 @@
 #include "common_log.h"
 #include "log_printf.h"
 
+// string vectoy, 没有明确说不可以．
+
+// 对大小初始化用(),其它用{}
+// vector<string> vs(7) //7个空字符串,而非字符串长度为
+
+// vector嵌套,构造函数会被执行四次,访问其元素时,会做两次间接寻址．
+// 容器存储的总是对象的拷贝
+// 效率远远低于Matrix<2,double>
+// vector< vector<double>>有可能会使每行大小不同．
+
 // vector 的大多数性质都与 string 相同，可以去看相同目录下的string.
 
 template <typename TC>
@@ -91,9 +101,6 @@ static void VectorAssignInsertTest(void) {
   PRINT("inster : ");
   Attributes(s2);
 }
-// todo
-// 二维 vectoy
-// string vectoy
 
 int main(int argc, char *argv[]) {
   try {

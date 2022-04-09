@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 3.5)
 # 项目信息
 project (${PRO_NAME})
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++14 -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
+# rov close : -fno-elide-constructors
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
 
 set(CMAKE_VERBOSE_MAKEFILE true)
 
@@ -36,8 +36,8 @@ set(zlog_lib_dir    ${PROJECT_SOURCE_DIR}/../${THIRD}/zlog)
 set(zmq_header_dir ${PROJECT_SOURCE_DIR}/../${THIRD}/zmq/include)
 set(zmq_lib_dir    ${PROJECT_SOURCE_DIR}/../${THIRD}/zmq/libzmq/lib)
 
-set(opencv_header_dir /home/code/installation_package/ubuntu/install_opencv3/opencv-3.3.1/opencv_3/include)
-set(opencv_lib_dir    /home/code/installation_package/ubuntu/install_opencv3/opencv-3.3.1/opencv_3/lib)
+set(opencv_header_dir /home/wangming/code/installation_package/ubuntu/install_opencv3/opencv-3.3.1/opencv_3/include)
+set(opencv_lib_dir    /home/wangming/code/installation_package/ubuntu/install_opencv3/opencv-3.3.1/opencv_3/lib)
 
 list(APPEND lib_files "")
 list(APPEND header_files ${PROJECT_SOURCE_DIR}/../include)
@@ -74,11 +74,32 @@ message(STATUS "***************** header_files=" ${header_files})
 
 add_definitions(-DPRT_TEST)
 include_directories(${PRO_DIR})
+include_directories(${PRO_DIR}/../src)
 include_directories(${PROJECT_SOURCE_DIR}/../include)
+include_directories(${PROJECT_SOURCE_DIR}/../src/common)
+include_directories(${PROJECT_SOURCE_DIR}/../src/sys)
+include_directories(${PROJECT_SOURCE_DIR}/../src/sys/terminal)
+include_directories(${PROJECT_SOURCE_DIR}/../src/sys/socket)
+
+if(ENABLE_SENSOR)
+include_directories(${PROJECT_SOURCE_DIR}/../include/sensor)
+message(STATUS "***************** header:"${PROJECT_SOURCE_DIR}/../include/sensor)
+endif()
 
 # link_directories(${fmt_lib_dir} ${zlog_lib_dir})
 
-aux_source_directory( ${PRO_DIR} SourceList)
+aux_source_directory(${PRO_DIR} SourceList)
+aux_source_directory(${PRO_DIR}/../src SourceList)
+aux_source_directory(${PROJECT_SOURCE_DIR}/../src/common SourceList)
+aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys SourceList)
+aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/terminal SourceList)
+aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/socket SourceList)
+
+if(ENABLE_SENSOR)
+aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sensor SourceList)
+endif()
+
+
 if(ENABLE_ZMQ_DDS)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/zmq SourceList)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/dds SourceList)

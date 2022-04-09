@@ -1,0 +1,7 @@
+.*
+!.gitignore
+!.clang-format
+!.clang-tidy
+build
+sdk_test
+*.o

@@ -217,7 +217,7 @@ static void UniqueAssignTest(void) {
   std::unique_ptr<UniTest> t{new UniTest("hi")};
   std::unique_ptr<UniTest> tt = std::move(t);
   //只有一次构造与虚构,所以可以多多使用move，并且Move只是把
-  //一个左传强制转换成右值． 因此不可以把局部变量Move给全局变量
+  //一个左值强制转换成右值． 因此不可以把局部变量Move给全局变量
   // 14:0:46 541328  ptr_main.cc:188 constructor ser hi
   // 14:0:46 541332  ptr_main.cc:195 destructor ser hi
 

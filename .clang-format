@@ -1,0 +1,12 @@
+---
+BasedOnStyle: Google
+---
+Language: Cpp
+ColumnLimit: 120
+AllowAllParametersOfDeclarationOnNextLine: true
+AlignAfterOpenBracket: AlwaysBreak
+IncludeBlocks: Preserve
+---
+Language: Proto
+# Don't format .proto files.
+DisableFormat: true

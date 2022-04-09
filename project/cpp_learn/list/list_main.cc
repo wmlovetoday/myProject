@@ -1,8 +1,10 @@
 #include <cassert>  //assert
 #include <condition_variable>
 #include <exception>  //static_assert
+#include <forward_list>
 #include <iostream>
 #include <iterator>
+#include <list>
 #include <mutex>  // std::mutex, std::lock_guard
 #include <string>
 #include <vector>
@@ -11,59 +13,8 @@
 #include "common_log.h"
 #include "log_printf.h"
 
-// vector 的大多数性质都与 string 相同，可以去看相同目录下的string.
-
-template <typename TC>
-static void Attributes(TC& myContainer) {
-  if (!myContainer.empty()) {
-    PRINT("container size %ld", myContainer.size());
-    PRINT("myContainer.capacity() = %ld", myContainer.capacity());
-    COM_BUF(myContainer.data(), myContainer.size());
-  } else {
-    PRINT("container is empty");
-  }
-}
-//
 // http://www.cplusplus.com/reference/forward_list/forward_list/
 // 前向列表是序列容器，允许在序列的任何位置进行常量时间的插入和删除操作
-
-static void BasicTest(void) {
-  PRINT("*************** %s ****************", "forward_list constructor test");
-  std::forward_list<int> first;                                // default: empty
-  std::forward_list<int> second(3, 77);                        // fill: 3 seventy-sevens
-  std::forward_list<int> third(second.begin(), second.end());  // range initialization
-  std::forward_list<int> fourth(third);                        // copy constructor
-  std::forward_list<int> fifth(std::move(fourth));             // move ctor. (fourth wasted)
-  std::forward_list<int> sixth = {3, 52, 25, 90};              // initializer_list constructor
-
-  std::cout << "first:";
-  for (int& x : first) std::cout << " " << x;
-  std::cout << '\n';
-  std::cout << "second:";
-  for (int& x : second) std::cout << " " << x;
-  std::cout << '\n';
-  std::cout << "third:";
-  for (int& x : third) std::cout << " " << x;
-  std::cout << '\n';
-  std::cout << "fourth:";
-  for (int& x : fourth) std::cout << " " << x;
-  std::cout << '\n';
-  std::cout << "fifth:";
-  for (int& x : fifth) std::cout << " " << x;
-  std::cout << '\n';
-  std::cout << "sixth:";
-  for (int& x : sixth) std::cout << " " << x;
-  std::cout << '\n';
-
-  // operator=
-  std::forward_list<int> a(4);     // 4 ints
-  std::forward_list<int> b(3, 5);  // 3 ints with value 5
-  a = b;                           // copy assignment
-  for (int& x : a) std::cout << ' ' << x;
-  std::cout << '\n';
-  for (int& x : b) std::cout << ' ' << x;
-  std::cout << '\n';
-}
 
 struct student {
   int old;
@@ -71,25 +22,14 @@ struct student {
 };
 
 static void BasicElementTest(void) {
-  PRINT("*************** %s ****************", "forward_list insert test");
-
+  base_con::PrintFlag("Forward　List basic test");
   std::forward_list<struct student> list{};
-  PRINT("list is empty %d, max size %ld", list.empty(), list.max_size());
-
   student tmp{1, "xiao wang"};
   list.insert_after(list.before_begin(), tmp);
-  PRINT("list is empty %d, max size %ld", list.empty(), list.max_size());
-  PRINT("after insert,tmp.old = %d, %s", tmp.old, tmp.name.data());
-
   student tmp1{2, "li san"};
   list.insert_after(list.before_begin(), tmp1);
 
   std::forward_list<struct student>::iterator y;
-
-  // for( x=list.before_begin();x!=list.end();x++)
-  // {
-  //     PRINT("before_begin,old = %d, name = %s",x->old,x->name.data()); //core dump
-  // }
   for (y = list.begin(); y != list.end(); y++) {
     PRINT("begin,old = %d, name = %s", y->old, y->name.data());
   }
@@ -98,20 +38,10 @@ static void BasicElementTest(void) {
   list.push_front(tmp2);
   student tmp3{4, "wang wu"};
   list.push_front(tmp3);
-
   for (y = list.begin(); y != list.end(); y++) {
     PRINT("after push front,old = %d, name = %s", y->old, y->name.data());
   }
 
-  // for( auto x=list.before_begin();x!=list.end();x++) //core dump
-  // {
-  //     if( (*(x++)).old == 2)
-  //     {
-  //         list.erase_after(x);
-  //          PRINT("erase 2 after");
-  //          break;
-  //     }
-  // }
   auto x = list.before_begin();
   for (y = list.begin(); y != list.end(); y++) {
     if ((*y).old == 2) {
@@ -138,15 +68,206 @@ static void BasicElementTest(void) {
   // }
 }
 
-void ForwardList(void) {
-  BasicTest();
-  BasicElementTest();
+/**
+explicit list (const allocator_type& alloc = allocator_type());
+explicit list (size_type n);
+         list (size_type n, const value_type& val,
+                const allocator_type& alloc = allocator_type());
+template <class InputIterator>
+  list (InputIterator first, InputIterator last,
+         const allocator_type& alloc = allocator_type());
+*/
+
+static void ListConstructor() {
+  base_con::PrintFlag("List Constructor test");
+  // constructors used in the same order as described above:
+  std::list<int> first;           // empty list of ints
+  std::list<int> second(4, 100);  // four ints with value 100
+  std::list<int> third(second.begin(),
+                       second.end());  // iterating through second
+  std::list<int> fourth(third);        // a copy of third
+
+  // the iterator constructor can also be used to construct from arrays:
+  int myints[] = {16, 2, 77, 29};
+  std::list<int> fifth(myints, myints + sizeof(myints) / sizeof(int));
+}
+
+static void ForwardListTest(void) {
+  base_con::PrintFlag("Forward List test");
+  std::forward_list<int> first;          // default: empty
+  std::forward_list<int> second(3, 77);  // fill: 3 seventy-sevens
+  std::forward_list<int> third(second.begin(),
+                               second.end());       // range initialization
+  std::forward_list<int> fourth(third);             // copy constructor
+  std::forward_list<int> fifth(std::move(fourth));  // move ctor. (fourth wasted)
+  std::forward_list<int> sixth = {3, 52, 25, 90};   // initializer_list constructor
+
+  // operator=
+  std::forward_list<int> a(4);     // 4 ints
+  std::forward_list<int> b(3, 5);  // 3 ints with value 5
+  a = b;                           // copy assignment
+}
+
+// void pop_front(); list same with forward_list
+static void ListPush() {
+  base_con::PrintFlag("List Push test");
+  std::list<int> mylist(2, 100);  // two ints with a value of 100
+  mylist.push_front(200);         // emplace_front
+  mylist.push_back(300);          // emplace_back
+
+  base_con::PrintFlag("");
+  mylist.pop_front();
+  PRINT("after pop front");
+
+  mylist.pop_back();
+  base_con::PrintFlag("");
+  PRINT("after pop back");
+}
+
+/**
+  iterator insert (const_iterator position, const value_type& val);
+  iterator insert (const_iterator position, size_type n, const value_type& val);
+  template <class InputIterator>
+  iterator insert (const_iterator position, InputIterator first, InputIterator
+  last); iterator insert (const_iterator position, value_type&& val); iterator
+  insert (const_iterator position, initializer_list<value_type> il);
+*/
+static void ListInsert() {
+  base_con::PrintFlag("List Insert test");
+  std::list<int> mylist;
+
+  // set some initial values:
+  for (int i = 1; i <= 5; ++i) {
+    mylist.push_back(i);  // 1 2 3 4 5
+  }
+
+  /**
+  list inster at begin, end very good; fix location bad.
+  */
+  mylist.insert(mylist.begin(), 10);
+  // mylist.insert(mylist.begin(), 2, 8);
+  std::list<int>::iterator it = mylist.begin();
+  it++;
+  mylist.insert(it, 2, 8);
+}
+/**
+因为是单向向前链表，因此没有后面的相关操作．比如，无 push_back,但是有push_front
+除了有list insert　一切功能外，还有更方便的，指定位置插入操作．
+iterator insert_after ( const_iterator position, const value_type& val );
+iterator insert_after ( const_iterator position, value_type&& val );
+iterator insert_after ( const_iterator position, size_type n, const value_type&
+val ); template <class InputIterator> iterator insert_after ( const_iterator
+position, InputIterator first, InputIterator last ); iterator insert_after (
+const_iterator position, initializer_list<value_type> il );
+*/
+static void ForwardListInsert() {
+  base_con::PrintFlag("Forward List Insert test");
+  std::forward_list<int> mylist;
+
+  // set some initial values:
+  for (int i = 1; i <= 5; ++i) {
+    mylist.push_front(i);  // 1 2 3 4 5
+  }
+  mylist.insert_after(mylist.begin(), 0);
+  base_con::PrintFlag("");
+  PRINT("AFTER : mylist.insert_after(mylist.begin(), 0);");
+
+  mylist.insert_after(mylist.before_begin(), 0);
+  base_con::PrintFlag("");
+  PRINT("AFTER : mylist.insert_after(mylist.before_begin(), 0);");
+}
+
+/**
+void remove (const value_type& val); //list same with forward_list
+*/
+struct SensorAttrs {
+ public:
+  std::string serial;  // number id ? <query>
+  std::string src_ipaddr;
+  std::string dst_ipaddr;
+  uint16_t src_port;
+  uint16_t dst_port;
+};
+
+static void ForwardListEraseTest() {
+  base_con::PrintFlag("Forward List erase test");
+  std::forward_list<SensorAttrs> mylist;
+
+  SensorAttrs tmp{"test_camera", "192.168.1.21", "192.168.1.21", 9000, 9001};
+  SensorAttrs tmp1{"debug_camera", "192.168.1.21", "192.168.1.21", 8000, 8001};
+  mylist.insert_after(mylist.before_begin(), tmp);
+  mylist.insert_after(mylist.before_begin(), tmp1);
+
+  auto x = mylist.before_begin();
+  for (auto& t : mylist) {
+    if ("debug_camera" == t.serial) {
+      mylist.erase_after(x);
+      // mylist.remove(x);  // remove only support value_type
+    } else {
+      x++;
+    }
+  }
+  for (auto t : mylist) {
+    std::cout << "--------------" << std::endl;
+    std::cout << "serial : " << t.serial << std::endl;
+    std::cout << "src_ipaddr : " << t.src_ipaddr << std::endl;
+    std::cout << "dst_ipaddr : " << t.dst_ipaddr << std::endl;
+    std::cout << "src_port : " << t.src_port << std::endl;
+    std::cout << "dst_port : " << t.dst_port << std::endl;
+  }
+}
+
+static void ForwardListRemoveTest() {
+  base_con::PrintFlag("Forward List remove test");
+
+  struct std::forward_list<int> mylist;
+
+  // set some initial values:
+  for (int i = 1; i <= 5; ++i) {
+    mylist.push_front(i);  // 1 2 3 4 5
+  }
+  base_con::PrintFlag("");
+  mylist.remove(3);
+  base_con::PrintFlag("");
+  PRINT("AFTER remove :");
+}
+
+/**
+  //list
+  iterator erase (const_iterator position);
+  iterator erase (const_iterator first, const_iterator last);
+
+  //ForwardList
+  iterator erase_after (const_iterator position);
+  iterator erase_after (const_iterator position, const_iterator last);
+*/
+static void ForwardListErase1Test() {
+  base_con::PrintFlag("Forward List Erase test");
+  std::forward_list<int> mylist;
+
+  // set some initial values:
+  for (int i = 1; i <= 5; ++i) {
+    mylist.push_front(i);  // 1 2 3 4 5
+  }
+  base_con::PrintFlag("");
+  mylist.erase_after(mylist.begin());
+  base_con::PrintFlag("");
+  PRINT("AFTER erase :");
 }
 
 int main(int argc, char* argv[]) {
   try {
-    VectorSizeTest();
-    VectorAssignInsertTest();
+    ListConstructor();
+    ListPush();
+    ListInsert();
+
+    ForwardListTest();
+    ForwardListTest();
+    ForwardListRemoveTest();
+    ForwardListEraseTest();
+    ForwardListErase1Test();
+    BasicElementTest();
+
   } catch (std::exception& err) {
     std::cout << "exception:" << err.what() << std::endl;
   } catch (...) {

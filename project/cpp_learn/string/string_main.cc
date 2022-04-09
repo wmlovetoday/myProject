@@ -1,5 +1,6 @@
 #include <cassert>  //assert
 #include <condition_variable>
+#include <cstddef>
 #include <exception>  //static_assert
 #include <iostream>
 #include <iterator>
@@ -7,6 +8,7 @@
 #include <string>
 
 #include "base_context.h"
+#include "com_interface.h"
 #include "common_log.h"
 #include "log_printf.h"
 
@@ -264,6 +266,66 @@ static void StringGetlineTest() {
   const void * memchr ( const void * ptr, int value, size_t num );
         void * memchr (       void * ptr, int value, size_t num );
 */
+/**
+  // 最后一次出现的位置
+  size_t rfind (const string& str, size_t pos = npos) const noexcept;
+  size_t rfind (const char* s, size_t pos = npos) const;
+  size_t rfind (const char* s, size_t pos, size_t n) const;
+  size_t rfind (char c, size_t pos = npos) const noexcept;
+
+//返回第一次/最后一次匹配的位置
+  find_first_of/find_last_of  same with rfind
+*/
+static void StringFindTest() {
+  base_con::PrintFlag("String Find Test");
+  std::string name{"/home/code/test.c"};
+  // std::string name{"test.c"};
+  size_t pos = name.rfind('/');
+  if (pos != std::string::npos) {
+    PRINT("remove path : %s", name.data() + pos + 1);
+  } else {
+    PRINT("not find /");
+  }
+}
+
+/**
+ * 在 str1 中找到第一次与 str2（单个字符部分或全部） 匹配位置
+  size_t strcspn ( const char * str1, const char * str2 );
+
+  str2 在 str1 中匹配的长度。 好像冻太好用
+  size_t strspn ( const char * str1, const char * str2 );
+*/
+static void CharStringCompareTest() {
+  base_con::PrintFlag("char String Compare Test");
+  std::string name{"code_test.c"};  // /code/test.c
+  std::string compare{"test.c"};
+  size_t pos = strcspn(name.data(), compare.data());
+  if (pos != std::string::npos) {
+    PRINT("comapred contex : %s", name.data() + pos + 1);
+  } else {
+    PRINT("not find /");
+  }
+
+  size_t x = strspn(name.data(), compare.data());
+  PRINT("comapred contex length : %ld", x);
+}
+
+/**
+ * char * strtok ( char * str, const char * delimiters );
+ */
+
+static void CharStringSplitTest() {
+  base_con::PrintFlag("char String split Test");
+  char str[] = "- This, a sample string.";
+  char *pch;
+  PRINT("Splitting string \"%s\" into tokens:", str);
+  pch = strtok(str, " ,.-");
+  while (pch != NULL) {
+    PRINT("%s", pch);
+    pch = strtok(NULL, " ,.-");
+  }
+}
+
 static void SelectTest() {
   base_con::PrintFlag("String Select Test");
   // std::string name{"/home/code/test.c"};
@@ -275,7 +337,17 @@ static void SelectTest() {
   char *pch;
   char str[] = "Example post";
   pch = (char *)memchr(str, 'p', strlen(str));
-  PRINT("p is find at : %d", pch - str + 1);
+  PRINT("p is find at : %ld", pch - str + 1);
+
+  std::string src{"i am a good boy"};
+  std::string com{" "};
+  std::vector<std::string> ret{};
+  int32_t re = common::SpiltStr(src, com, ret);
+  if (re == 0) {
+    for (auto i : ret) {
+      PRINT(" : %s", i.data());
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -288,7 +360,10 @@ int main(int argc, char *argv[]) {
     StringAppendInsertTest();
     StringCompareTest();
     StringGetlineTest();
+    StringFindTest();
     SelectTest();
+    CharStringCompareTest();
+    CharStringSplitTest();
   } catch (std::exception &err) {
     std::cout << "exception:" << err.what() << std::endl;
   } catch (...) {
