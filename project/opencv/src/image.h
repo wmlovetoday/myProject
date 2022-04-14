@@ -19,7 +19,7 @@ class ImageUi {
   void TrackbarInit();
   void CreateTrackbar(const std::string& win_name);
   void SaveImage(const cv::Mat& dst_img, const void* img, uint32_t size, const std::string ima_type = ".bmp");
-  void SaveVideo(const std::string& video_name, uint16_t width, uint16_t height, const cv::Mat& dst_img);
+  void SaveVideo(const std::string& video_name, uint16_t width, uint16_t height, uint16_t fps, const cv::Mat& dst_img);
   inline SaveImageTrackbar* GetPicTrackbar() { return &pic_tracbar_; }
   inline SaveVideoTrackbar* GetVideoTrackbar() { return &video_tracbar_; }
 

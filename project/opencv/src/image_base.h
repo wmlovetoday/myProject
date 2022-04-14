@@ -29,6 +29,7 @@ class ImaBase {
     }
   }
   inline void SetWaitMs(uint32_t wait_ms) { wait_ms_ = wait_ms; }
+  inline void SetVideoFps(uint32_t fps) { video_fps = fps; }
   inline std::string GetWinName() { return win_name_; }
   inline void SetWinName(const std::string& name) { win_name_ = name; }
   inline cv::Mat& GetImage() { return dst_img_; }
@@ -45,6 +46,7 @@ class ImaBase {
   uint32_t wait_ms_{5};
   uint16_t width_;
   uint16_t height_;
+  uint16_t video_fps{30};
   uint32_t size_;
   ConvertType type_;
 };

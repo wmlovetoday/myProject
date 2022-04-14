@@ -28,7 +28,15 @@ static void BasicElementTest(void) {
   list.insert_after(list.before_begin(), tmp);
   student tmp1{2, "li san"};
   list.insert_after(list.before_begin(), tmp1);
-
+  student tmpt{0, "ha ha"};
+  auto t = list.before_begin();
+  for (auto y = list.begin(); y != list.end(); y++) {
+    if (y == list.end()) {
+      break;
+    }
+    t++;
+  }
+  list.insert_after(t, tmpt);
   std::forward_list<struct student>::iterator y;
   for (y = list.begin(); y != list.end(); y++) {
     PRINT("begin,old = %d, name = %s", y->old, y->name.data());
@@ -261,7 +269,6 @@ int main(int argc, char* argv[]) {
     ListPush();
     ListInsert();
 
-    ForwardListTest();
     ForwardListTest();
     ForwardListRemoveTest();
     ForwardListEraseTest();

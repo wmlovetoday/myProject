@@ -53,7 +53,8 @@ void ImageUi::SaveImage(const cv::Mat &dst_img, const void *img, uint32_t size, 
   }
   pic_tracbar_.pic_num++;
 }
-void ImageUi::SaveVideo(const std::string &video_name, uint16_t width, uint16_t height, const cv::Mat &dst_img) {
+void ImageUi::SaveVideo(
+    const std::string &video_name, uint16_t width, uint16_t height, uint16_t fps, const cv::Mat &dst_img) {
   if (video_tracbar_.pic_dir.empty()) {
     char dir[32];
     com::GetTimeLogo(&dir);
@@ -61,7 +62,7 @@ void ImageUi::SaveVideo(const std::string &video_name, uint16_t width, uint16_t 
     com::CreateDir(video_tracbar_.pic_dir.data());
     std::string name = video_tracbar_.pic_dir + "/" + video_name + ".avi";
     // PRINT("SAVE %s", name.data());
-    cv::VideoWriter vid(name, CV_FOURCC('M', 'J', 'P', 'G'), 30, CvSize(width, height));
+    cv::VideoWriter vid(name, CV_FOURCC('M', 'J', 'P', 'G'), fps, CvSize(width, height));
     video_ = vid;
   }
   video_.write(dst_img);
@@ -161,7 +162,7 @@ void ImageByte8::Display(uint16_t width, uint16_t height, const void *memory, co
         video_tracbar_.pic_dir.clear();
         new_video_ = false;
       }
-      SaveVideo(win_name_, width_, height_, dst_img_);
+      SaveVideo(win_name_, width_, height_, video_fps, dst_img_);
     } else {
       new_video_ = true;
     }
@@ -253,7 +254,7 @@ void ImageByte24::Display(uint16_t width, uint16_t height, const void *memory, c
         video_tracbar_.pic_dir.clear();
         new_video_ = false;
       }
-      SaveVideo(win_name_, width_, height_, dst_img_);
+      SaveVideo(win_name_, width_, height_, video_fps, dst_img_);
     } else {
       new_video_ = true;
     }

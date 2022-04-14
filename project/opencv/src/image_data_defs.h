@@ -37,7 +37,7 @@ enum EnableMode { kOFF = 0, kON };
 
 const std::string save_pic_context{"save picture : 1 single    \n               2 continue "};
 const std::string save_video_context{"save video   : 1 on        "};
-const std::string save_pic_type_context{"save video   : 1 raw  \n               2 bmp, 3 jpeg "};
+const std::string save_pic_type_context{"save picture type: 1 raw  \n               2 bmp, 3 jpeg "};
 
 struct SaveImageTrackbar {
   int32_t trackbar_value;

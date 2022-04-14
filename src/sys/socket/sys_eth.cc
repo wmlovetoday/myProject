@@ -1,7 +1,7 @@
 #include <cstddef>
 #include <cstring>
 
-#include "sys_socket.h"
+#include "sys_eth.h"
 
 namespace sys {
 

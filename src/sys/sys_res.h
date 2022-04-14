@@ -17,14 +17,9 @@
 #include <vector>
 
 #include "com_interface.h"
+#include "sys_defs.h"
 
 namespace sys {
-
-constexpr int32_t kSysSuccess = 0;
-constexpr int32_t kSysFailed = -1;
-constexpr int32_t kSysTimeout = -2;
-constexpr int32_t kSysNotSupport = -3;
-constexpr int32_t kSysInvalidArgs = -4;
 
 struct StatData {
   void parse(const std::string& content) {

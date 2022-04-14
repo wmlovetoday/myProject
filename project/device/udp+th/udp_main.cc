@@ -20,31 +20,41 @@
 #include "com_interface.h"
 #include "common_log.h"
 #include "log_printf.h"
+#include "sys_th.h"
 #include "sys_udp.h"
 
 #define STR_FLAG "main"
+using namespace sys;
+struct SocArg {
+  sockaddr_in bind_addr;
+  sockaddr_in tar_addr;
+};
 
-static void UdpTest(sockaddr_in &bind_addr, sockaddr_in &tar_addr) {
+ThRunFunc rf = [](const bool &run, const bool &start, void *args) -> int32_t {
   base_con::PrintFlag("udp test");
+  SocArg *addr = static_cast<SocArg *>(args);
   sys::SysUdp udp{};
   udp.Open();
-  udp.Bind(bind_addr);
-  udp.SetTargetAddr(tar_addr);
-  char send_time = 10;
+  udp.Bind(addr->bind_addr);
+  udp.SetTargetAddr(addr->tar_addr);
   char send_buf[5] = {0};
   char recv_buf[1024] = {0};
 
-  while (send_time) {
+  while (run) {
     send_buf[0]++;
     udp.Send(send_buf, 1);
-    udp.Recv(
-        reinterpret_cast<char *>(recv_buf), static_cast<uint32_t>(sizeof(recv_buf)),
-        reinterpret_cast<sockaddr *>(&tar_addr));
-    PTS_INFO("recv {}", recv_buf);
-    // std::this_thread::sleep_for(std::chrono::seconds(1));
-    send_time--;
+    if (start) {
+      udp.Recv(
+          reinterpret_cast<char *>(recv_buf), static_cast<uint32_t>(sizeof(recv_buf)),
+          reinterpret_cast<sockaddr *>(&(addr->tar_addr)));
+      PTS_INFO("recv {}", recv_buf);
+    } else {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
   }
-}
+  PRINT("exit");
+  return 0;
+};
 
 int main(int argc, char *argv[]) {
   // base_con::PrintFlag("exception test");
@@ -63,27 +73,36 @@ int main(int argc, char *argv[]) {
   strcpy(target_addr.addr, tar_ip);
   target_addr.host_port = tar_port;
 
-  sockaddr_in bind_addr{};
-  ret = ConvertLocalToNetAddr(tmp_addr, bind_addr);
+  SocArg arg{};
+
+  ret = ConvertLocalToNetAddr(tmp_addr, arg.bind_addr);
   if (ret != 0) {
     PRINT_ERRNO("convert bind addr failed");
     return -1;
   }
-  bind_addr.sin_family = AF_INET;
+  arg.bind_addr.sin_family = AF_INET;
   PRINT("bind addr = %s : %d", ip, port);
 
-  sockaddr_in tar_addr{};
-  ret = ConvertLocalToNetAddr(target_addr, tar_addr);
+  ret = ConvertLocalToNetAddr(target_addr, arg.tar_addr);
   if (ret != 0) {
     PRINT_ERRNO("convert target addr failed");
     return -1;
   }
-  tar_addr.sin_family = AF_INET;
+  arg.tar_addr.sin_family = AF_INET;
   PRINT("target addr = %s : %d", tar_ip, tar_port);
 
-  UdpTest(bind_addr, tar_addr);
-
   try {
+    Th th{};
+    th.Regist(rf, static_cast<void *>(&arg));
+    th.StartCallback();
+    uint32_t count = 0;
+    while (count < 10) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      count++;
+    }
+    th.StopCallback();
+    sleep(3);
+    th.Remove();
   } catch (std::exception &err) {
     std::cout << "exception:" << err.what() << std::endl;
   } catch (...) {
