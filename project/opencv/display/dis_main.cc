@@ -92,11 +92,13 @@ static void Display() {
       cam->SetConvertType(image::ConvertType::kYV122RG);
     }
     cam->Display(width, height, mem.data(), "IMA");
+    cam->Display(width, height, mem.data(), "IMA");
   }
   if ((file_type == COM_RAW24) || (file_type == COM_RAW32)) {
     auto cam = ImaSys::GetImageByte24Ptr();
     cam->SetWaitMs(0);
     cam->SetConvertType(image::ConvertType::kBayer2GR);
+    cam->Display(width, height, mem.data(), "IMA");
     cam->Display(width, height, mem.data(), "IMA");
   }
   fclose(fp);

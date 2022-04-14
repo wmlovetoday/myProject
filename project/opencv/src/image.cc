@@ -63,6 +63,9 @@ void ImageUi::SaveVideo(
     std::string name = video_tracbar_.pic_dir + "/" + video_name + ".avi";
     // PRINT("SAVE %s", name.data());
     cv::VideoWriter vid(name, CV_FOURCC('M', 'J', 'P', 'G'), fps, CvSize(width, height));
+    PRINT("compressibility %lf", vid.get(VIDEOWRITER_PROP_QUALITY));  // // default 75 compressibility
+    vid.set(VIDEOWRITER_PROP_QUALITY, 95);
+    PRINT("set compressibility to %lf", vid.get(VIDEOWRITER_PROP_QUALITY));
     video_ = vid;
   }
   video_.write(dst_img);
