@@ -20,7 +20,7 @@
 #include "com_interface.h"
 #include "common_log.h"
 #include "log_printf.h"
-#include "sys_socket.h"
+#include "sys_tcp.h"
 #include "sys_terminal.h"
 
 #define STR_FLAG "main"
@@ -57,8 +57,12 @@ int main(int argc, char *argv[]) {
   uint16_t tar_port = 8880;
 
   sys::LocalAddr tmp_addr{};
-  strcpy(tmp_addr.addr, ip);
+  tmp_addr.addr = std::string(ip);
   tmp_addr.host_port = port;
+
+  sys::LocalAddr target_addr{};
+  target_addr.addr = std::string(tar_ip);
+  target_addr.host_port = tar_port;
 
   sockaddr_in bind_addr{};
   ret = ConvertLocalToNetAddr(tmp_addr, bind_addr);

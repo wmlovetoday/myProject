@@ -11,7 +11,7 @@ using ThRunFunc = std::function<int32_t(const bool &run, const bool &start, void
 class Th {
  public:
   Th() = default;
-  int32_t Regist(ThRunFunc &run_func, const void *run_args);
+  int32_t Regist(ThRunFunc run_func, const void *run_args);
   int32_t Remove() noexcept;
   /** start call back func*/
   inline void StartCallback() noexcept { start_run_ = true; }

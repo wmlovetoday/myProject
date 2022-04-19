@@ -2,7 +2,7 @@
 
 namespace sys {
 
-int32_t Th::Regist(ThRunFunc &run_func, const void *run_args) {
+int32_t Th::Regist(ThRunFunc run_func, const void *run_args) {
   if (init_) {
     return -1;
   }

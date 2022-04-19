@@ -27,14 +27,20 @@ static uint32_t resolution{};
 
 static void Display() {
   if (file_type == COM_AUTO) {
-    Mat dst_img = imread(file_name.data());
-    imshow(WINDOW, dst_img);
-    int8_t key = static_cast<int8_t>(waitKey(0));
-    if (key == 's') {
-      std::string w_name = file_name + ".bmp";
-      imwrite(w_name.data(), dst_img);
-    }
-    exit(0);
+    // Mat dst_img = imread(file_name.data());
+    // imshow(WINDOW, dst_img);
+    // int8_t key = static_cast<int8_t>(waitKey(0));
+    // if (key == 's') {
+    //   std::string w_name = file_name + ".bmp";
+    //   imwrite(w_name.data(), dst_img);
+    // }
+    FILE *file = fopen(file_name.c_str(), "r");
+    fseek(file, 0, SEEK_END);
+    resolution = ftell(file);
+    width = 1;
+    height = resolution;
+    PRINT("FILE SIZE %d %d %d", resolution, width, height);
+    fclose(file);
   }
   if (file_type == COM_RAW8) {
     resolution = width * height;
@@ -79,9 +85,18 @@ static void Display() {
     }
   }
   using namespace image;
-  if ((file_type == COM_RAW8) || (file_type == COM_YUV422) || (file_type == COM_YUV420)) {
+  // if (file_type == COM_AUTO) {
+  //   cv::_InputArray src(mem.data(), resolution);
+  //   cv::Mat dst = cv::imdecode(src, IMREAD_COLOR);
+  //   cv::imshow("auto", dst);
+  //   cv::waitKey(0);
+  // }
+  if ((file_type == COM_AUTO) || (file_type == COM_RAW8) || (file_type == COM_YUV422) || (file_type == COM_YUV420)) {
     auto cam = ImaSys::GetImageByte8Ptr();
     cam->SetWaitMs(0);
+    if (file_type == COM_AUTO) {
+      cam->SetConvertType(image::ConvertType::kAuto);
+    }
     if (file_type == COM_RAW8) {
       cam->SetConvertType(image::ConvertType::kBayer2BG);
     }
@@ -99,6 +114,7 @@ static void Display() {
     cam->SetWaitMs(0);
     cam->SetConvertType(image::ConvertType::kBayer2GR);
     cam->Display(width, height, mem.data(), "IMA");
+    PRINT("FILE SIZE %d %d %d", resolution, width, height);
     cam->Display(width, height, mem.data(), "IMA");
   }
   fclose(fp);

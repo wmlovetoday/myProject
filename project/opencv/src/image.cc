@@ -54,7 +54,7 @@ void ImageUi::SaveImage(const cv::Mat &dst_img, const void *img, uint32_t size, 
   pic_tracbar_.pic_num++;
 }
 void ImageUi::SaveVideo(
-    const std::string &video_name, uint16_t width, uint16_t height, uint16_t fps, const cv::Mat &dst_img) {
+    const std::string &video_name, uint32_t width, uint32_t height, uint16_t fps, const cv::Mat &dst_img) {
   if (video_tracbar_.pic_dir.empty()) {
     char dir[32];
     com::GetTimeLogo(&dir);
@@ -96,14 +96,16 @@ void ImageUi::CreateTrackbar(const std::string &win_name) {
       save_pic_type_tracbar_.trackbar_value_max, 0, 0);
 }
 
-void ImageByte8::Display(uint16_t width, uint16_t height, const void *memory, const std::string name) {
+void ImageByte8::Display(uint32_t width, uint32_t height, const void *memory, const std::string name) {
   if (!init_) {
-    dst_img_.create(height, width, CV_8UC3);
+    if (type_ != ConvertType::kAuto) {
+      dst_img_.create(height, width, CV_8UC3);
+    }
     cv::namedWindow(win_name_, WINDOW_NORMAL | CV_GUI_NORMAL);
     width_ = width;
     height_ = height;
-    if ((type_ == ConvertType::kBayer2BG) || (type_ == ConvertType::kBayer2GB) || (type_ == ConvertType::kBayer2RG) ||
-        (type_ == ConvertType::kBayer2GR)) {
+    if ((type_ == ConvertType::kAuto) || (type_ == ConvertType::kBayer2BG) || (type_ == ConvertType::kBayer2GB) ||
+        (type_ == ConvertType::kBayer2RG) || (type_ == ConvertType::kBayer2GR)) {
       size_ = width * height;
     } else if ((type_ == ConvertType::kYUV2BG) || (type_ == ConvertType::kYUV2RG)) {
       size_ = width * height * 2;
@@ -149,6 +151,11 @@ void ImageByte8::Display(uint16_t width, uint16_t height, const void *memory, co
       cv::Mat tmp_img(height * 3 / 2, width, CV_8UC2, const_cast<void *>(memory), width);
       src_img = tmp_img;
       cv::cvtColor(src_img, dst_img_, CV_YUV2BGR_YV12, 3);
+    } else if (type_ == ConvertType::kAuto) {
+      uint8_t *p_t = static_cast<uint8_t *>(const_cast<void *>(memory));
+      PRINT("SIZE %d", size_);
+      cv::_InputArray tmp_img(p_t, static_cast<int>(size_));
+      dst_img_ = cv::imdecode(tmp_img, IMREAD_COLOR);
     } else {
       PRINT(
           " %d current convert out of %d ~ %d", static_cast<int32_t>(type_),
@@ -185,7 +192,7 @@ ImageByte8::~ImageByte8() {
     cv::destroyWindow(win_name_);
   }
 }
-void ImageByte24::Display(uint16_t width, uint16_t height, const void *memory, const std::string name) {
+void ImageByte24::Display(uint32_t width, uint32_t height, const void *memory, const std::string name) {
   if (!init_) {
     low_mem8_.resize(width * height);
     mid_mem8_.resize(width * height);

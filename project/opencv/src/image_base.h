@@ -14,7 +14,7 @@ namespace image {
 
 class ImaBase {
  public:
-  virtual void Display(uint16_t width, uint16_t height, const void* memory, const std::string name) = 0;
+  virtual void Display(uint32_t width, uint32_t height, const void* memory, const std::string name) = 0;
   inline void SetConvertType(ConvertType type) { type_ = type; }
   inline void SetSavePicType(SavePicType type) {
     if (type == SavePicType::kRaw) {
@@ -33,8 +33,8 @@ class ImaBase {
   inline std::string GetWinName() { return win_name_; }
   inline void SetWinName(const std::string& name) { win_name_ = name; }
   inline cv::Mat& GetImage() { return dst_img_; }
-  inline uint16_t GetWidth() { return width_; }
-  inline uint16_t GetHeight() { return height_; }
+  inline uint32_t GetWidth() { return width_; }
+  inline uint32_t GetHeight() { return height_; }
   virtual ~ImaBase() {}
 
  protected:
@@ -44,8 +44,8 @@ class ImaBase {
   std::string save_pic_type_{".bmp"};
   cv::Mat dst_img_{};
   uint32_t wait_ms_{5};
-  uint16_t width_;
-  uint16_t height_;
+  uint32_t width_;
+  uint32_t height_;
   uint16_t video_fps{30};
   uint32_t size_;
   ConvertType type_;

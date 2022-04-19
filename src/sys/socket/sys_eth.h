@@ -13,6 +13,7 @@
 #include <cstring>
 #include <functional>
 #include <stdexcept>  // std::out_of_range
+#include <string>
 #include <thread>
 #include <utility>
 
@@ -25,7 +26,8 @@ constexpr socklen_t kSocketSendBufSize{1024 * 10};
 constexpr socklen_t kSocketRecvBufSize{1024 * 10};
 
 struct LocalAddr {
-  char addr[16];
+  // char addr[16];
+  std::string addr;
   uint16_t host_port;
 };
 extern int32_t ConvertNetToLocalAddr(sockaddr_in ip_addr, LocalAddr &addr);

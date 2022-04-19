@@ -23,11 +23,13 @@ struct in_addr
 */
 
 int32_t ConvertNetToLocalAddr(sockaddr_in ip_addr, LocalAddr &addr) {
-  constexpr size_t size = sizeof(addr.addr);
+  // constexpr size_t size = sizeof(addr.addr);
   char *p = inet_ntoa(ip_addr.sin_addr);
   if (p != nullptr) {
-    memset(addr.addr, 0, size);
-    memcpy(reinterpret_cast<void *>(addr.addr), reinterpret_cast<void *>(p), strlen(p));
+    // memset(addr.addr, 0, size);
+    // memcpy(reinterpret_cast<void *>(addr.addr), reinterpret_cast<void *>(p), strlen(p));
+    addr.addr.clear();
+    addr.addr = std::string(p);
   } else {
     PRINT_ERRNO("convert addr netaddr : %d failed", ip_addr.sin_addr.s_addr);
     return kSysFailed;
@@ -64,13 +66,13 @@ int32_t ConvertSocketToLocalAddr(int32_t fd, sockaddr_in &ip_addr) {
 }
 
 int32_t ConvertLocalToNetAddr(const LocalAddr &addr, sockaddr_in &ip_addr) {
-  if (strlen(addr.addr) == 0) {
+  if (addr.addr.empty()) {
     ip_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   } else {
     uint32_t ipaddr_t = 0;
-    int32_t ret = inet_aton(addr.addr, reinterpret_cast<struct in_addr *>(&ipaddr_t));
+    int32_t ret = inet_aton(addr.addr.data(), reinterpret_cast<struct in_addr *>(&ipaddr_t));
     if (0 == ret) {
-      PRINT_ERRNO("convert local addr %s failed", addr.addr);
+      PRINT_ERRNO("convert local addr %s failed", addr.addr.data());
       return kSysFailed;
     }
     ip_addr.sin_addr.s_addr = ipaddr_t;

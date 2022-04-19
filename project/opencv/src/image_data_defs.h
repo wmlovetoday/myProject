@@ -22,7 +22,8 @@ enum class ConvertType {
   kYUV2RG,  // CV_YUV2RGB_UYVY
 
   kYV122RG,  // CV_YUV2RGB_YV12
-  kYV122BG   // CV_YUV2BGR_YV12
+  kYV122BG,  // CV_YUV2BGR_YV12
+  kAuto
 };
 
 enum class SavePicType {

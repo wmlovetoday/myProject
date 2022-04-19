@@ -1,5 +1,5 @@
-#include <cassert>   //assert
-#include <exception> //static_assert
+#include <cassert>    //assert
+#include <exception>  //static_assert
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -27,8 +27,8 @@ static void ThreadAttributesTest() {
   PRINT("func thread id %ld", func_thread_id);
 
   std::thread th{SleepFunc, 100};
-  auto tn = th.native_handle();             // can use it for cancle
-  PRINT("th.joinable()=%d", th.joinable()); // return bool type
+  auto tn = th.native_handle();              // can use it for cancle
+  PRINT("th.joinable()=%d", th.joinable());  // return bool type
   if (th.joinable()) {
     pthread_cancel(tn);
     th.join();
@@ -40,10 +40,9 @@ static void ThreadAttributesTest() {
     PRINT("sleep %d ms", ms);
     return 0;
   };
-  std::thread th1; //只代表一个线程对象，不可执行
-  th1 =
-      std::thread{fun, sleep_ms}; // move-assign threads, std::thread::operator=
-  PRINT("th1.joinable()=%d", th1.joinable()); // return bool type
+  std::thread th1;                             //只代表一个线程对象，不可执行
+  th1 = std::thread{fun, sleep_ms};            // move-assign threads, std::thread::operator=
+  PRINT("th1.joinable()=%d", th1.joinable());  // return bool type
   if (th1.joinable()) {
     th1.join();
   }
@@ -78,16 +77,38 @@ static void ThreadProjectTest() {
   th.StopCallback();
 }
 
-int main(int argc, char *argv[]) {
+class ScropeThread {
+ public:
+  ScropeThread(std::thread t) : m_pThead(std::move(t)) {
+    if (!m_pThead.joinable()) {
+      throw std::logic_error("no thread");
+    }
+  }
+  ~ScropeThread() { m_pThead.join(); }
+  ScropeThread(const ScropeThread &) = delete;
+  ScropeThread &operator=(const ScropeThread &) = delete;
 
+ private:
+  std::thread m_pThead;
+};
+
+void fun(void) {}
+
+int main(int argc, char *argv[]) {
   try {
-    ThreadAttributesTest();
-    ThreadProjectTest();
+    // 了错，t1,是一个对象，传给st时要用到拷贝构造，而 thread 确没有拷贝构造。只有移动构造，故
+    //第二种，先构造了临时对象，即右值，所以可以。
+    // std::thread t1(fun);
+    // ScropeThread st(t1);
+
+    ScropeThread(std::thread(fun));
+    // ThreadAttributesTest();
+    // ThreadProjectTest();
   } catch (std::exception &err) {
     std::cout << "exception:" << err.what() << std::endl;
   } catch (...) {
-    std::cout << "exception but do nothing" << std::endl; // do nothing
-    throw;                                                //重新抛出
+    std::cout << "exception but do nothing" << std::endl;  // do nothing
+    throw;                                                 //重新抛出
   }
   return 0;
 }

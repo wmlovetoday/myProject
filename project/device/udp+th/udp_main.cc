@@ -66,11 +66,11 @@ int main(int argc, char *argv[]) {
   uint16_t tar_port = 8880;
 
   sys::LocalAddr tmp_addr{};
-  strcpy(tmp_addr.addr, ip);
+  tmp_addr.addr = std::string(ip);
   tmp_addr.host_port = port;
 
   sys::LocalAddr target_addr{};
-  strcpy(target_addr.addr, tar_ip);
+  target_addr.addr = std::string(tar_ip);
   target_addr.host_port = tar_port;
 
   SocArg arg{};
@@ -93,7 +93,10 @@ int main(int argc, char *argv[]) {
 
   try {
     Th th{};
-    th.Regist(rf, static_cast<void *>(&arg));
+    // th.Regist(rf, static_cast<void *>(&arg));
+    // th.Regist([&](const bool &run, const bool &start, void *args) -> int32_t { return 0; }, static_cast<void
+    // *>(&arg));
+    th.Regist([&](const bool &run, const bool &start, void *args) -> int32_t { return 0; }, nullptr);
     th.StartCallback();
     uint32_t count = 0;
     while (count < 10) {
