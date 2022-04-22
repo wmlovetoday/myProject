@@ -14,7 +14,7 @@
 #include "log_printf.h"
 
 using namespace cv;
-enum FileType { COM_AUTO = 1, COM_RAW8, COM_RAW16, COM_RAW24, COM_RAW32, COM_YUV422, COM_YUV420 };
+enum FileType { COM_AUTO = 1, COM_RAW8, COM_RAW16, COM_RAW24, COM_RAW32, COM_YUV422, COM_YUV420, COM_RGB, COM_RGBA };
 
 static std::string file_name{};
 static int32_t file_type{-1};
@@ -54,10 +54,15 @@ static void Display() {
     resolution = width * height * 2;
   } else if (file_type == COM_YUV420) {
     resolution = width * height * 3 / 2;
+  } else if (file_type == COM_RGB) {
+    resolution = width * height * 3;
+  } else if (file_type == COM_RGBA) {
+    resolution = width * height * 4;
   }
+
   std::vector<char> mem(resolution, 0);
   FILE *fp;
-  if (file_type == COM_RAW32) {
+  if ((file_type == COM_RAW32) || (file_type == COM_RGBA)) {
     std::vector<char> mem_t(width * height * 4, 0);
     if ((fp = fopen(file_name.c_str(), "r")) == nullptr) {
       PRINT("open %s failed %s:%d!", file_name.data(), strerror(errno), errno);
@@ -91,7 +96,8 @@ static void Display() {
   //   cv::imshow("auto", dst);
   //   cv::waitKey(0);
   // }
-  if ((file_type == COM_AUTO) || (file_type == COM_RAW8) || (file_type == COM_YUV422) || (file_type == COM_YUV420)) {
+  if ((file_type == COM_AUTO) || (file_type == COM_RAW8) || (file_type == COM_YUV422) || (file_type == COM_YUV420) ||
+      (file_type == COM_RGB) || (file_type == COM_RGBA)) {
     auto cam = ImaSys::GetImageByte8Ptr();
     cam->SetWaitMs(0);
     if (file_type == COM_AUTO) {
@@ -105,6 +111,9 @@ static void Display() {
     }
     if (file_type == COM_YUV420) {
       cam->SetConvertType(image::ConvertType::kYV122RG);
+    }
+    if ((file_type == COM_RGB) || (file_type == COM_RGBA)) {
+      cam->SetConvertType(image::ConvertType::kRGB888);
     }
     cam->Display(width, height, mem.data(), "IMA");
     cam->Display(width, height, mem.data(), "IMA");
@@ -134,6 +143,8 @@ int main(int argc, char *argv[]) {
     PRINT(" ./display 1920_1080_4bytes_rggb.raw32 5 1920 1080 1");
     PRINT(" ./display 1280_720.yuv422 6 1280 720 1");
     PRINT(" ./display 176_144.yuv420 7 176 144 1");
+    PRINT(" ./display 1080p_raw8.raw8.rgb 8 1920 1080 1");
+    PRINT(" ./display 1080p_raw8.raw8.rgba 9 1920 1080 1");
     PRINT(
         "   file type : COM_AUTO(1), COM_RAW8(2), COM_RAW16(3), COM_RAW24(4),COM_RAW24(5), COM_YUV422(6), "
         "COM_YUV420(7)");

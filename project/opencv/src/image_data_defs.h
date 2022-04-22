@@ -23,6 +23,7 @@ enum class ConvertType {
 
   kYV122RG,  // CV_YUV2RGB_YV12
   kYV122BG,  // CV_YUV2BGR_YV12
+  kRGB888,
   kAuto
 };
 
@@ -30,6 +31,7 @@ enum class SavePicType {
   kRaw = 1,  // COLOR_BayerBG2BGR = 46
   kBmp,      // COLOR_BayerGB2BGR = 47
   kJpeg,     // COLOR_BayerRG2BGR = 48
+  kRgb,
   kOther
 };
 
@@ -38,7 +40,7 @@ enum EnableMode { kOFF = 0, kON };
 
 const std::string save_pic_context{"save picture : 1 single    \n               2 continue "};
 const std::string save_video_context{"save video   : 1 on        "};
-const std::string save_pic_type_context{"save picture type: 1 raw  \n               2 bmp, 3 jpeg "};
+const std::string save_pic_type_context{"save picture type: 1 raw  \n 2 bmp, 3 jpeg 4 rgb"};
 
 struct SaveImageTrackbar {
   int32_t trackbar_value;

@@ -45,7 +45,10 @@ void ImageUi::SaveImage(const cv::Mat &dst_img, const void *img, uint32_t size, 
   // PRINT("save : %s", name.data());
   if (ima_type == std::string{".raw"}) {
     SaveRawIma(name, img, size);
+  } else if (ima_type == std::string{".rgb"}) {
+    SaveRawIma(name, dst_img.data, size);
   } else {
+    std::vector<int32_t> compression_params{CV_IMWRITE_JPEG_QUALITY, 95};
     cv::imwrite(name, dst_img);
   }
   if (pic_tracbar_.trackbar_value == static_cast<int32_t>(SavePicMode::kSingle)) {
@@ -80,7 +83,7 @@ void ImageUi::TrackbarInit() {
   video_tracbar_.trackbar_value_max = static_cast<int32_t>(EnableMode::kON);
 
   save_pic_type_tracbar_.trackbar_value = static_cast<int32_t>(SavePicType::kBmp);
-  save_pic_type_tracbar_.trackbar_value_max = static_cast<int32_t>(SavePicType::kJpeg);
+  save_pic_type_tracbar_.trackbar_value_max = static_cast<int32_t>(SavePicType::kRgb);
 
   /*int createTrackbar(
       const String &trackbarname, const String &winname, int *value, int max_count, TrackbarCallback onChange = 0,
@@ -111,6 +114,8 @@ void ImageByte8::Display(uint32_t width, uint32_t height, const void *memory, co
       size_ = width * height * 2;
     } else if ((type_ == ConvertType::kYV122RG) || (type_ == ConvertType::kYV122BG)) {
       size_ = width * height * 3 / 2;
+    } else if (type_ == ConvertType::kRGB888) {
+      size_ = width * height * 3;
     }
 
     TrackbarInit();
@@ -119,48 +124,54 @@ void ImageByte8::Display(uint32_t width, uint32_t height, const void *memory, co
 
   if (init_) {
     cv::Mat src_img;
-    if (type_ == ConvertType::kBayer2BG) {
-      cv::Mat tmp_img(height, width, CV_8UC1, const_cast<void *>(memory), width);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, COLOR_BayerBG2BGR, 3);
-    } else if (type_ == ConvertType::kBayer2GB) {
-      cv::Mat tmp_img(height, width, CV_8UC1, const_cast<void *>(memory), width);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, COLOR_BayerGB2BGR, 3);
-    } else if (type_ == ConvertType::kBayer2RG) {
-      cv::Mat tmp_img(height, width, CV_8UC1, const_cast<void *>(memory), width);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, COLOR_BayerRG2BGR, 3);
-    } else if (type_ == ConvertType::kBayer2GR) {
-      cv::Mat tmp_img(height, width, CV_8UC1, const_cast<void *>(memory), width);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, COLOR_BayerGR2BGR, 3);
-    } else if (type_ == ConvertType::kYUV2BG) {
-      cv::Mat tmp_img(height, width, CV_8UC2, const_cast<void *>(memory), width * 2);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, CV_YUV2BGR_YUYV, 3);
-    } else if (type_ == ConvertType::kYUV2RG) {
-      cv::Mat tmp_img(height, width, CV_8UC2, const_cast<void *>(memory), width * 2);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, CV_YUV2RGB_UYVY, 3);
-    } else if (type_ == ConvertType::kYV122RG) {
-      cv::Mat tmp_img(height * 3 / 2, width, CV_8UC2, const_cast<void *>(memory), width);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, CV_YUV2RGB_YV12, 3);
-    } else if (type_ == ConvertType::kYV122BG) {
-      cv::Mat tmp_img(height * 3 / 2, width, CV_8UC2, const_cast<void *>(memory), width);
-      src_img = tmp_img;
-      cv::cvtColor(src_img, dst_img_, CV_YUV2BGR_YV12, 3);
-    } else if (type_ == ConvertType::kAuto) {
-      uint8_t *p_t = static_cast<uint8_t *>(const_cast<void *>(memory));
-      PRINT("SIZE %d", size_);
-      cv::_InputArray tmp_img(p_t, static_cast<int>(size_));
-      dst_img_ = cv::imdecode(tmp_img, IMREAD_COLOR);
-    } else {
-      PRINT(
-          " %d current convert out of %d ~ %d", static_cast<int32_t>(type_),
-          static_cast<int32_t>(ConvertType::kBayer2BG), static_cast<int32_t>(ConvertType::kYV122BG));
-      return;
+    switch (static_cast<uint32_t>(type_)) {
+      case static_cast<uint32_t>(ConvertType::kBayer2BG):
+        src_img = cv::Mat(height, width, CV_8UC1, const_cast<void *>(memory), width);
+        cv::cvtColor(src_img, dst_img_, COLOR_BayerBG2BGR, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kBayer2GB):
+        src_img = cv::Mat(height, width, CV_8UC1, const_cast<void *>(memory), width);
+        cv::cvtColor(src_img, dst_img_, COLOR_BayerGB2BGR, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kBayer2RG):
+        src_img = cv::Mat(height, width, CV_8UC1, const_cast<void *>(memory), width);
+        cv::cvtColor(src_img, dst_img_, COLOR_BayerRG2BGR, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kBayer2GR):
+        src_img = cv::Mat(height, width, CV_8UC1, const_cast<void *>(memory), width);
+        cv::cvtColor(src_img, dst_img_, COLOR_BayerGR2BGR, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kYUV2BG):
+        src_img = cv::Mat(height, width, CV_8UC2, const_cast<void *>(memory), width * 2);
+        cv::cvtColor(src_img, dst_img_, CV_YUV2BGR_YUYV, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kYUV2RG):
+        src_img = cv::Mat(height, width, CV_8UC2, const_cast<void *>(memory), width * 2);
+        cv::cvtColor(src_img, dst_img_, CV_YUV2RGB_UYVY, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kYV122RG):
+        src_img = cv::Mat(height * 3 / 2, width, CV_8UC2, const_cast<void *>(memory), width);
+        cv::cvtColor(src_img, dst_img_, CV_YUV2RGB_YV12, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kYV122BG):
+        src_img = cv::Mat(height * 3 / 2, width, CV_8UC2, const_cast<void *>(memory), width);
+        cv::cvtColor(src_img, dst_img_, CV_YUV2BGR_YV12, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kRGB888):
+        dst_img_ = cv::Mat(height, width, CV_8UC3, const_cast<void *>(memory), width * 3);
+        // cv::cvtColor(src_img, dst_img_, CV_YUV2BGR_YV12, 3);
+        break;
+      case static_cast<uint32_t>(ConvertType::kAuto):
+        uint8_t *p_t = static_cast<uint8_t *>(const_cast<void *>(memory));
+        cv::_InputArray tmp_img(p_t, static_cast<int>(size_));
+        dst_img_ = cv::imdecode(tmp_img, IMREAD_COLOR);
+        break;
+
+        // default:
+        //   PRINT(
+        //       " %d current convert out of %d ~ %d", static_cast<int32_t>(type_),
+        //       static_cast<int32_t>(ConvertType::kBayer2BG), static_cast<int32_t>(ConvertType::kAuto));
+        // break;
     }
     imshow(win_name_, dst_img_);
     CreateTrackbar(win_name_);
@@ -186,7 +197,7 @@ void ImageByte8::Display(uint32_t width, uint32_t height, const void *memory, co
       SaveImage(dst_img_, memory, size_, save_pic_type_);
     }
   }
-}
+}  // namespace image
 ImageByte8::~ImageByte8() {
   if (init_) {
     cv::destroyWindow(win_name_);
@@ -211,7 +222,7 @@ void ImageByte24::Display(uint32_t width, uint32_t height, const void *memory, c
   }
 
   if (init_) {
-    for (int i = 0; i < height * width; i++) {
+    for (uint32_t i = 0; i < height * width; i++) {
       uint32_t t = i * 3;
       low_mem8_[i] = *((uint8_t *)(memory) + t);
       mid_mem8_[i] = *((uint8_t *)(memory) + t + 1);
@@ -243,14 +254,14 @@ void ImageByte24::Display(uint32_t width, uint32_t height, const void *memory, c
           static_cast<int32_t>(ConvertType::kBayer2BG), static_cast<int32_t>(ConvertType::kBayer2GR));
       return;
     }
-    for (int i = 0; i < height * width * 3; i++) {
+    for (uint32_t i = 0; i < height * width * 3; i++) {
       uint32_t tmp = (uint32_t)(*(low_rgb24_.data + i)) + ((uint32_t)(*(mid_rgb24_.data + i)) << 8) +
                      ((uint32_t)(*(hig_rgb24_.data + i)) << 16);
       *((float *)(hdr32_.data) + i) = tmp * 1.0 / 0xffffff;
     }
     tonemapReinhard_->process(hdr32_, ldrReinhard_);
     std::vector<uint8_t> tmp_v(width * height * 3, 0);
-    for (int i = 0; i < height * width * 3; i++) {
+    for (uint32_t i = 0; i < height * width * 3; i++) {
       tmp_v[i] = *((float *)(ldrReinhard_.data) + i) * 255;
     }
     dst_img_ = cv::Mat(height, width, CV_8UC3, const_cast<uint8_t *>(tmp_v.data()), width * 3);

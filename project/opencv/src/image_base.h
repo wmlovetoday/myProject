@@ -26,6 +26,9 @@ class ImaBase {
     } else if (type == SavePicType::kJpeg) {
       save_type_ = SavePicType::kJpeg;
       save_pic_type_ = std::string(".jpeg");
+    } else if (type == SavePicType::kRgb) {
+      save_type_ = SavePicType::kJpeg;
+      save_pic_type_ = std::string(".rgb");
     }
   }
   inline void SetWaitMs(uint32_t wait_ms) { wait_ms_ = wait_ms; }
