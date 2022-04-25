@@ -7,42 +7,29 @@ project (${PRO_NAME})
 # rov close : -fno-elide-constructors
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
 
-set(CMAKE_VERBOSE_MAKEFILE true)
+set(CMAKE_VERBOSE_MAKEFILE true) # display build details
 
-if(CMAKE_BUILD_TYPE)
+if(ENABLE_RELEASE)
   set(CMAKE_BUILD_TYPE Release)
-  message(STATUS "=============== build release ==============")
+  message(STATUS "=============== release ${PLATFORM} ${VERSION} ==============")
 else()
+  message(STATUS "=============== debug ${PLATFORM} ${VERSION} ==============")
   set(CMAKE_BUILD_TYPE Debug)
-  message(STATUS "=============== build debug ==============")
-endif()
-
-if(NOT ARM)
-  set(THIRD third)
-  message(STATUS "=============== build x64 ==============")
-else()
-  set(THIRD third_arm)
-  message(STATUS "=============== build arm ==============")
+  add_compile_options(-g -ggdb -fstack-protector-all -march=native -fnon-call-exceptions)
 endif()
 
 message(STATUS "PROJECT_SOURCE_DIR=" ${PROJECT_SOURCE_DIR}) # CMAKE.TXT DIR
-
-set(fmt_header_dir ${PROJECT_SOURCE_DIR}/../${THIRD}/fmt)
-set(fmt_lib_dir    ${PROJECT_SOURCE_DIR}/../${THIRD}/fmt)
-
-set(zlog_header_dir ${PROJECT_SOURCE_DIR}/../${THIRD}/zlog)
-set(zlog_lib_dir    ${PROJECT_SOURCE_DIR}/../${THIRD}/zlog)
-
-set(zmq_header_dir ${PROJECT_SOURCE_DIR}/../${THIRD}/zmq/include)
-set(zmq_lib_dir    ${PROJECT_SOURCE_DIR}/../${THIRD}/zmq/libzmq/lib)
-
-set(opencv_header_dir /home/wangming/code/installation_package/ubuntu/install_opencv3/opencv-3.3.1/opencv_3/include)
-set(opencv_lib_dir    /home/wangming/code/installation_package/ubuntu/install_opencv3/opencv-3.3.1/opencv_3/lib)
 
 list(APPEND lib_files "")
 list(APPEND header_files ${PROJECT_SOURCE_DIR}/../include)
 
 if(ENABLE_ZLOG)
+  set(fmt_header_dir ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/fmt)
+  set(fmt_lib_dir    ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/fmt)
+  
+  set(zlog_header_dir ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/zlog)
+  set(zlog_lib_dir    ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/zlog)
+
   include_directories(${PROJECT_SOURCE_DIR}/../src/log)
   include_directories(${zlog_header_dir} ${fmt_header_dir})
   link_directories(${fmt_lib_dir} ${zlog_lib_dir})
@@ -52,6 +39,9 @@ if(ENABLE_ZLOG)
 endif()
 
 if(ENABLE_ZMQ_DDS)
+  set(zmq_header_dir ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/zmq/include)
+  set(zmq_lib_dir    ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/zmq/libzmq/lib)
+  
   include_directories(${PROJECT_SOURCE_DIR}/../src/zmq)
   include_directories(${PROJECT_SOURCE_DIR}/../src/dds)
   include_directories(${PROJECT_SOURCE_DIR}/../src/dds/dds_zmq)
@@ -63,10 +53,13 @@ if(ENABLE_ZMQ_DDS)
 endif()
 
 if(ENABLE_OPENCV)
-include_directories(${opencv_header_dir})
-link_directories(${opencv_lib_dir})
-list(APPEND lib_files opencv_core opencv_highgui opencv_imgcodecs opencv_imgproc opencv_videoio opencv_photo)
-message(STATUS "=============== build opencv ==============")
+  set(opencv_header_dir ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/opencv_ubuntu${VERSION}/include)
+  set(opencv_lib_dir    ${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/opencv_ubuntu${VERSION}/lib)
+
+  include_directories(${opencv_header_dir})
+  link_directories(${opencv_lib_dir})
+  list(APPEND lib_files opencv_core opencv_highgui opencv_imgcodecs opencv_imgproc opencv_videoio opencv_photo)
+  message(STATUS "=============== build opencv ==============")
 endif()
 
 message(STATUS "***************** lib_files=" ${lib_files})
@@ -77,14 +70,12 @@ include_directories(${PRO_DIR})
 include_directories(${PRO_DIR}/../src)
 include_directories(${PROJECT_SOURCE_DIR}/../include)
 include_directories(${PROJECT_SOURCE_DIR}/../src/common)
-include_directories(${PROJECT_SOURCE_DIR}/../src/sys)
-include_directories(${PROJECT_SOURCE_DIR}/../src/sys/terminal)
-include_directories(${PROJECT_SOURCE_DIR}/../src/sys/socket)
-include_directories(${PROJECT_SOURCE_DIR}/../src/sys/th)
 
-if(ENABLE_SENSOR)
-include_directories(${PROJECT_SOURCE_DIR}/../include/sensor)
-message(STATUS "***************** header:"${PROJECT_SOURCE_DIR}/../include/sensor)
+if(ENABLE_SYS)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/sys)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/sys/terminal)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/sys/socket)
+  include_directories(${PROJECT_SOURCE_DIR}/../src/sys/th)
 endif()
 
 # link_directories(${fmt_lib_dir} ${zlog_lib_dir})
@@ -92,21 +83,20 @@ endif()
 aux_source_directory(${PRO_DIR} SourceList)
 aux_source_directory(${PRO_DIR}/../src SourceList)
 aux_source_directory(${PROJECT_SOURCE_DIR}/../src/common SourceList)
-aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys SourceList)
-aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/terminal SourceList)
-aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/socket SourceList)
-aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/th SourceList)
 
-if(ENABLE_SENSOR)
-aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sensor SourceList)
+if(ENABLE_SYS)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys SourceList)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/terminal SourceList)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/socket SourceList)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/th SourceList)
 endif()
-
 
 if(ENABLE_ZMQ_DDS)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/zmq SourceList)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/dds SourceList)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/dds/dds_zmq SourceList)
 endif()  
+
 add_executable(${PROJECT_NAME} ${SourceList})
 
 target_link_libraries(${PROJECT_NAME} ${lib_files} pthread)

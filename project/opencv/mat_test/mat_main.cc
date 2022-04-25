@@ -9,7 +9,6 @@
 #include <opencv2/opencv.hpp>
 
 #include "base_context.h"
-#include "common_log.h"
 #include "image_sys.h"
 #include "log_printf.h"
 
@@ -180,12 +179,11 @@ void Display() {
 int main(int argc, char *argv[]) {
   base_con::PrintFlag("opencv test");
 
-  PTS_INFO("i am zlog !!!");
   PRINT("i am C log !!!");
   if (argc < 6) {
     PRINT("/////////// must input arguments //////////");
     PRINT(" ./mat file, filetype, width, hight, convert type");
-    PRINT(" ./mat lena.jpg 1 0 0 0");
+    // PRINT(" ./mat lena.jpg 1 0 0 0");
     PRINT(" ./mat 1080p_raw8.raw8 2 1920 1080 1");
     PRINT(" ./mat sony.raw24 4 1920 1080 1");
     PRINT(" ./mat 1920_1080_4bytes_rggb.raw32 5 1920 1080 1");

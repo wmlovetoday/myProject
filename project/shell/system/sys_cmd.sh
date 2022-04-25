@@ -1,9 +1,15 @@
 #!/bin/bash
 
-set -u
-# set -x
+set -u 
+set -x
+
+source ./env_setting.sh
 
 declare -r WORK_DIR=`pwd`
+declare -r CPU_COUNT=`cat /proc/cpuinfo |grep "processor"|wc -l`
+
+
+
 
 declare -r SCRIPTS_LOC=`cd "\`dirname "$0"\`"; pwd`
 declare -r CPU_COUNT=`cat /proc/cpuinfo |grep "processor"|wc -l`

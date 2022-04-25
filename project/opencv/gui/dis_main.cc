@@ -9,7 +9,6 @@
 #include <opencv2/opencv.hpp>
 
 #include "base_context.h"
-#include "common_log.h"
 #include "image_sys.h"
 #include "log_printf.h"
 
