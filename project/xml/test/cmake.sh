@@ -5,7 +5,7 @@ CMAKE_DIR=${WORK_DIR}/../..
 
 echo "WORK_DIR = ${WORK_DIR} but cur_dir = `pwd`"
 source ${CMAKE_DIR}/env_setting.sh
-PRO_NAME_=display
+PRO_NAME_=xml_test
 
 if [ $# -ge 1 ] && [ $1 == "clean" ]
 then
@@ -20,7 +20,7 @@ mkdir ${WORK_DIR}/build
 cd ${WORK_DIR}/build
 
 com_build=-DPRO_NAME=${PRO_NAME_}\ -DPRO_DIR=${WORK_DIR}\ -DPLATFORM=${platform_}\ -DVERSION=${ubuntu_ver_}
-opt_build=-DENABLE_ZLOG=ON\ -DENABLE_ZMQ_DDS=OFF\ -DENABLE_OPENCV=ON\ -DENABLE_SYS=OFF
+opt_build=-DENABLE_ZLOG=ON\ -DENABLE_ZMQ_DDS=OFF\ -DENABLE_OPENCV=OFF\ -DENABLE_SYS=OFF\ -DENABLE_XML=ON
 cmake -DENABLE_RELEASE=OFF ${com_build} ${opt_build}  ${CMAKE_DIR}
 
 make -j${CPU_COUNT_}

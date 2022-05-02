@@ -71,11 +71,15 @@ include_directories(${PRO_DIR}/../src)
 include_directories(${PROJECT_SOURCE_DIR}/../include)
 include_directories(${PROJECT_SOURCE_DIR}/../src/common)
 
-if(ENABLE_SYS)
+if(ENABLE_SYS==ON)
   include_directories(${PROJECT_SOURCE_DIR}/../src/sys)
   include_directories(${PROJECT_SOURCE_DIR}/../src/sys/terminal)
   include_directories(${PROJECT_SOURCE_DIR}/../src/sys/socket)
   include_directories(${PROJECT_SOURCE_DIR}/../src/sys/th)
+endif()
+
+if(ENABLE_XML)
+  include_directories(${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/pugixml)
 endif()
 
 # link_directories(${fmt_lib_dir} ${zlog_lib_dir})
@@ -89,6 +93,10 @@ if(ENABLE_SYS)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/terminal SourceList)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/socket SourceList)
   aux_source_directory(${PROJECT_SOURCE_DIR}/../src/sys/th SourceList)
+endif()
+
+if(ENABLE_XML)
+  aux_source_directory(${PROJECT_SOURCE_DIR}/../third/${PLATFORM}/pugixml SourceList)
 endif()
 
 if(ENABLE_ZMQ_DDS)
