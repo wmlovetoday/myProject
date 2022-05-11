@@ -41,7 +41,7 @@ struct InterfaceInfo {
 int64_t GetTimeMs();
 int64_t GetTimeUs();
 int64_t GetTimeNs();
-int32_t GetTimeLogo(char (*time_log)[32]);
+int32_t GetTimeLogo(int8_t (*time_log)[32]);
 int32_t SysSleep(uint64_t sec);
 int32_t SysSleepMs(uint64_t ms);
 int32_t SysSleepNs(uint64_t ns);

@@ -14,7 +14,7 @@ std::unique_ptr<CNvSIPLMaster> upMaster(nullptr);
 // Parse a user-provided platform_config.json file to override the PlatformCfg structs in the SIPL Query database
 // Apply a mask to enable only specific deserializer links in a specific platform configuration
 main() {
-  // sep1. Querying Platform Configuration
+  // sep 1. Querying Platform Configuration
   // get a list of supported platform configurations
   auto pQuery = INvSIPLQuery::GetInstance();
 
@@ -23,7 +23,8 @@ main() {
   status = pQuery->GetPlatformCfg(cmdline.sConfigName, oPlatformCfg);
   status = pQuery->ApplyMask(oPlatformCfg, cmdline.vMasks);
 
-  auto upMaster = unique_ptr<CNvSIPLMaster>(new CNvSIPLMaster());
+  // sep 2.
+  auto upMaster = unique_ptr<CNvSIPLMaster>(new CNvSIPLMaster());  // <1>
   status = upMaster->Setup(&oPlatformCfg);
 
   std::unique_ptr<CPipelineNotificationHandler> upNotificationHandler(nullptr);
@@ -89,6 +90,9 @@ main() {
     cons->m_uFrameCount = 0;
   }
 }
+
+// <1>
+
 class CNvSIPLConsumer : public INvSIPLClient::INvMCallback {};
 class INvSIPLClient {
   class INvSIPLBuffer {};

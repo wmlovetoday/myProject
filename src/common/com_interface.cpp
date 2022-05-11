@@ -77,15 +77,15 @@ int64_t GetTimeNs() {
   return kComFailed;
 }
 
-int32_t GetTimeLogo(char (*time_log)[32]) {
-  char s_time[sizeof(*time_log)] = {'\0'};
+int32_t GetTimeLogo(int8_t (*time_log)[32]) {
+  int8_t s_time[sizeof(*time_log)] = {'\0'};
   size_t len = sizeof(*time_log);
   if (nullptr == time_log) return -1;
   time_t timer = time(nullptr);
   if ((static_cast<time_t>(-1)) != timer) {
-    strftime(s_time, sizeof(s_time), TIME_OUT_FORMAT_, localtime(&timer));
+    strftime((char *)(s_time), sizeof(s_time), TIME_OUT_FORMAT_, localtime(&timer));
     memcpy(reinterpret_cast<void *>(time_log), reinterpret_cast<void *>(s_time), len);
-    char *tmp = reinterpret_cast<char *>(time_log);
+    int8_t *tmp = reinterpret_cast<int8_t *>(time_log);
     *(tmp + len - 1) = '\0';
     return kComSuccess;
   }

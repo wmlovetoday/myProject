@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/time.h>
 
+#define TIME_FORMAT_ "%u:%u:%u %u:%u:%u %lu"
 #define DATA_FOR_ "%d:%d:%d "
 #define TIME_FOR_ "%d:%d:%d %ld "
 #define DATA_ARG_(ptm) ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday,
@@ -42,5 +43,15 @@
         S_FORMAT__ FILE_FMT format " syserr:%s:%d\n", S_PARA__(tm, tv), FILE_CONT, ##__VA_ARGS__, strerror(errno), \
         errno);                                                                                                    \
     fflush(stdout);                                                                                                \
+  } while (0)
+
+#define GETSTIME(out_stime)                                                                                        \
+  do {                                                                                                             \
+    struct timeval tv;                                                                                             \
+    gettimeofday(&tv, NULL);                                                                                       \
+    struct tm *ptm = localtime(&(tv.tv_sec));                                                                      \
+    snprintf(                                                                                                      \
+        (char *)(out_stime), sizeof(*out_stime), TIME_FORMAT_, ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, \
+        ptm->tm_hour, ptm->tm_min, ptm->tm_sec, tv.tv_usec);                                                       \
   } while (0)
 #endif

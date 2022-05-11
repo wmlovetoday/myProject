@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base_context.h"
+#include "com_interface.h"
 #include "common_log.h"
 #include "log_printf.h"
 
@@ -31,6 +32,14 @@ int main(int argc, char *argv[]) {
   PRINT("i am C log !!!");
 
   try {
+    int8_t time_log[32];
+    com::GetTimeLogo(&time_log);
+    PRINT("::::: %s", time_log);
+
+    int8_t time_l[32];
+    GETSTIME(&time_l);
+    PRINT("+++++++ %s", time_l);
+
     // DoTask();
     long int p = std::stol("0x800100a0", nullptr, 0);
     PRINT("%x !!!", p);

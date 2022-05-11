@@ -5,3 +5,6 @@
 build
 sdk_test
 *.o
+myMedia
+project/orin/picture/dst
+project/orin/picture/src
