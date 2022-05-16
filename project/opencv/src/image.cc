@@ -35,9 +35,9 @@ int32_t SaveRawIma(const std::string &save_name, const void *data, uint32_t size
 
 void ImageUi::SaveImage(const cv::Mat &dst_img, const void *img, uint32_t size, const std::string ima_type) {
   if (pic_tracbar_.pic_dir.empty()) {
-    char dir[32];
+    int8_t dir[32];
     com::GetTimeLogo(&dir);
-    pic_tracbar_.pic_dir = "picture_" + std::string{dir};
+    pic_tracbar_.pic_dir = "picture_" + std::string{(char *)(dir)};
     com::CreateDir(pic_tracbar_.pic_dir.data());
   }
 
@@ -59,9 +59,9 @@ void ImageUi::SaveImage(const cv::Mat &dst_img, const void *img, uint32_t size, 
 void ImageUi::SaveVideo(
     const std::string &video_name, uint32_t width, uint32_t height, uint16_t fps, const cv::Mat &dst_img) {
   if (video_tracbar_.pic_dir.empty()) {
-    char dir[32];
+    int8_t dir[32];
     com::GetTimeLogo(&dir);
-    video_tracbar_.pic_dir = "video_" + std::string{dir};
+    video_tracbar_.pic_dir = "video_" + std::string{(char *)(dir)};
     com::CreateDir(video_tracbar_.pic_dir.data());
     std::string name = video_tracbar_.pic_dir + "/" + video_name + ".avi";
     // PRINT("SAVE %s", name.data());
